@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Meteor-example-form by ics-software-engineering</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Meteor-example-form</h1>
+      <h2 class="project-tagline">Illustrates form processing in Meteor 1.4+, BlazeJS, and Semantic UI</h2>
+      <a href="https://github.com/ics-software-engineering/meteor-example-form" class="btn">View on GitHub</a>
+      <a href="https://github.com/ics-software-engineering/meteor-example-form/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/ics-software-engineering/meteor-example-form/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p>This sample application illustrates how to manipulate user input using forms with <a href="http://meteor.com">Meteor 1.4</a>, <a href="http://blazejs.org/">BlazeJS</a>, and <a href="http://semantic-ui.com/">Semantic UI</a>.</p>
+
+<h2>
+<a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites</h2>
+
+<p>To best understand this application, it is useful to first familiarize yourself with:</p>
+
+<ul>
+<li><p><a href="http://ics-software-engineering.github.io/meteor-application-template/">Meteor Application Template</a>. This sample application illustrates conventions for directory layout, naming conventions, routing, integration of Semantic UI, and coding standards. Meteor-example-form is based on this template, so we won't discuss any of these issues here.</p></li>
+<li><p><a href="http://blazejs.org/guide/spacebars.html">Blaze Templates</a>. Read this documentation to learn about HTML spacebars and the various Javascript utilities (helpers, onCreated, onRendered, etc.).</p></li>
+<li><p><a href="http://semantic-ui.com/collections/form.html">Semantic UI Forms</a>. Read this documentation to learn the CSS classes defined by Semantic UI to create nicely styled forms.</p></li>
+<li><p><a href="https://github.com/aldeed/meteor-simple-schema#validating-data">Validating data with Simple Schema</a>. Actually, you'll probably need to familiarize yourself with all of Simple Schema, but the section on data validation is crucial to understanding this sample application.</p></li>
+<li><p><a href="https://themeteorchef.com/snippets/reactive-dict-reactive-vars-and-session-variables/">Reactive Dict, Reactive Vars, and Session Variables</a>.  This application uses Reactive Dictionaries. I found this blog posting to be a very concise and useful explanation of them and how they relate to other mechanisms like Session variables.</p></li>
+</ul>
+
+<h2>
+<a id="ui-walkthrough" class="anchor" href="#ui-walkthrough" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>UI Walkthrough</h2>
+
+<p>The home page of this application presents the Create Student Data page:</p>
+
+<p><img src="https://github.com/ics-software-engineering/meteor-example-form/raw/master/doc/create-student-data-page.png" alt=""></p>
+
+<p>If you try pressing submit without entering any data, then validation will fail on the required fields and error messages are displayed:</p>
+
+<p><img src="https://github.com/ics-software-engineering/meteor-example-form/raw/master/doc/create-student-data-page-error.png" alt=""></p>
+
+<p>After correctly filling out the form and pressing submit, the page creates an entry in the StudentData collection and provides a URL to the Update Student Data page:</p>
+
+<p><img src="https://github.com/ics-software-engineering/meteor-example-form/raw/master/doc/create-student-data-page-success.png" alt=""></p>
+
+<p>Clicking on the link brings up the other page in this application, Edit Student Data, which obtains the id of a Student Data document from the URL, retrieves it from the StudentData collection, and fills out the form with this document's fields so they can be updated:</p>
+
+<p><img src="https://github.com/ics-software-engineering/meteor-example-form/raw/master/doc/update-student-data-page.png" alt=""></p>
+
+<p>A successful update is indicated like this:</p>
+
+<p><img src="https://github.com/ics-software-engineering/meteor-example-form/raw/master/doc/update-student-data-page-success.png" alt=""></p>
+
+<p>I won't show it here, but if you violate any validation on this update page, then it will show the same error messages as on the Create Student Data page.</p>
+
+<h2>
+<a id="code-walkthrough" class="anchor" href="#code-walkthrough" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Code walkthrough</h2>
+
+<h4>
+<a id="defining-form-validation" class="anchor" href="#defining-form-validation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Defining form validation</h4>
+
+<p>User input should always be validated before being further processed by the system.  The canonical approach to validation in Meteor is to create a schema using Simple Schema. In this sample application, the schema is defined as part of defining the <a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/api/studentdata/studentdata.js">StudentData Collection</a>.</p>
+
+<h4>
+<a id="publications-and-subscriptions" class="anchor" href="#publications-and-subscriptions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Publications and subscriptions</h4>
+
+<p>For arcane reasons, form processing using Semantic UI requires you to remove the autopublish package and to explicitly publish and subscribe to collections. </p>
+
+<p>For simplicity's sake, this example application publishes all of the StudentData collection in <a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/startup/server/publications.js">publications.js</a>. </p>
+
+<p>This application only needs to subscribe to the collection on the Edit Student Data page, since that's the only page that needs to reference pre-existing StudentData.  Unfortunately, the subscription process is not at all straightforward: take a look at <a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/edit-student-data-page.js#L74-L83">edit-student-data-page.js#L74-L83</a> .</p>
+
+<p>Ugh. The basic issue is this:  Semantic UI needs to invoke JQuery to initialize its fancy Javascript selection drop down processing apparatus. And JQuery needs the DOM to be rendered to work correctly.  Plus, we need to wait for the StudentData collection to be available.  Since Meteor is reactive, we normally don't worry about DOM manipulation and so forth, but Semantic UI forces us to worry about it because they require us to call JQuery. This solution (arrived at after much failed experimentation) is to subscribe to the data with a callback that sets another callback to be invoked after Tracker completes its rendering of the DOM. </p>
+
+<p>The bright side of this? I believe this code snippet illustrates a general solution to the problem of "How do I integrate a third party library that depends upon JQuery into my Meteor app"? Maybe.</p>
+
+<p>(If you think you know of a more simple way to handle this issue, please let me know or issue a pull request.)</p>
+
+<h4>
+<a id="create-student-data" class="anchor" href="#create-student-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create Student Data</h4>
+
+<p>Now let's get look at the first of the two pages: Create Student Data, and start with the HTML code.</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.html">create-student-data-page.html</a> is the HTML template for accepting data for insertion into the StudentData collection. </p>
+
+<p>This looks like fairly standard <a href="http://semantic-ui.com/collections/form.html">Semantic UI Form</a> code. </p>
+
+<p>Note that <a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.html#L5">create-student-data-page.html#L5</a> augments the "ui form" class declaration with two helpers: successClass and errorClass. These helpers return the strings "success" or "error" when the form has been successfully submitted or has been found to contain errors, respectively. Otherwise (such as when the page is first displayed), they return the empty string. So, think of the page as containing three states: "empty" (i.e. just retrieved), "success" (the form data was just submitted and there were no errors), or "error" (the form data was submitted and errors were found).</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.html#L13-L17">create-student-data-page.html#L13-L17</a> illustrates how error notifications are inserted. If the helper displayNameFieldError returns truthy, then the div is included in the page. There are two more of these error helpers: displayLevelFieldError and displayGpaFieldError.</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.html#L121-L125">create-student-data-page.html#L121-L125</a> shows a similar approach to the error fields, but this time the notification displayed indicates that the form data was valid and a new StudentData document was created and can now be edited on the other page. </p>
+
+<p>Now let's turn to the Javascript side of Create Student Data.</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.js#L11-L16">create-student-data-page.js#L11-L16</a> shows the onCreated handler.  This handler sets up a Reactive Dictionary to hold displaySuccessMessage, indicating if we want to display the success message, and displayErrorMessages, indicating if we want to display one or more error messages. Note that they are initialized to false, indicating that we are in the third state (neither success nor failure).</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.js#L18-L40">create-student-data-page.js#L18-L40</a> shows the helper functions for this page. They alter the appearance of the page through reactive variables (either through the messageFlags reactive dict or through the reactive variables created by the Simple Schema validation mechanism).</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.js#L42-L49">create-student-data-page.js#L42-L49</a> shows the onRendered callback function which is responsible for loading the Semantic UI javascript to make the form elements look good. Because there are no subscriptions on this page, the code is straightforward (in constrast to the code required for the Edit Student Data page).</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/create-student-data-page.js#L51-L89">create-student-data-page.js#L51-L89</a>  shows the events callback for handling the submit button event. As is usual in Meteor event processing, the first thing is to disable the default event handling. The following code provides examples of how to extract form values from the various input types: text fields, text areas, checkboxes, radio buttons, single selection, and multiple selection.  After this, the handler creates an object called newStudentData that gathers together these values.  </p>
+
+<p>This object is "cleaned" manually in order to make it correspond to the same object that will be checked by the Collection2 hook function as part of the insert process. Finally, we validate the form data and set the reactive variables appropriately.  Note that changing the reactive variable values is all that is needed to cause the page contents to be updated.  </p>
+
+<h4>
+<a id="edit-student-data" class="anchor" href="#edit-student-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Edit Student Data</h4>
+
+<p>The Edit Student Data HTML and Javascript has a lot of duplicated code.  This is intentional for pedagogical reasons: I think it is easier to figure out how form processing works when the code for creation and updating are shown in isolation. That said, when you create your own production code, you will probably want to refactor out a "component" to eliminate redundancy.</p>
+
+<p>In the HTML code, <a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/edit-student-data-page.html#L3">edit-student-data-page#L3</a> shows the first difference: the use of the Template.subscriptionsReady to delay the display of the page until the data is available. </p>
+
+<p>The other significant difference on this page is the invocation of helper functions to provide values for all of the form values. </p>
+
+<p>Moving to the Javascript code, <a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/edit-student-data-page.html#L14-L16">edit-student-data-page#L14-L16</a> shows how to set up the subscription to the StudentData collection. In reality, this page does not need the entire StudentData collection, only the specific document referenced in the URL, so a more efficient solution would be a subscription that only retrieves a single document. But this approach was chosen as the simplest one since the focus is on form processing.</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/edit-student-data-page.html#L24-L70">edit-student-data-page#L24-L70</a> show the helper functions. Several of these refer to the URL to determine the id of the StudentData document of interest, then return a value appropriate to setting a form field value.  The remainder replicate the validation handlers from the Create Student Data page.</p>
+
+<p><a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/edit-student-data-page.html#L72-L85">edit-student-data-page#L72-L85</a> shows that in the case of this page where we have subscriptions, the Semantic UI Javascript initialization code must be in a Tracker.afterFlush callback which is itself in an onRendered callback. Wow.</p>
+
+<p>Finally, the submit event handler is identical to the one in the Create Student Data page except for <a href="https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/ui/pages/edit-student-data-page.html#L119">edit-student-data-page#L119</a> which calls update rather than insert.</p>
+
+<h2>
+<a id="screencast" class="anchor" href="#screencast" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screencast</h2>
+
+<p>Click the image below to watch a 27 minute walkthrough of this system.</p>
+
+<p><a href="https://www.youtube.com/watch?v=kEJN3kjyugs"><img src="https://raw.githubusercontent.com/ics-software-engineering/meteor-application-template/master/doc/meteor-application-template-youtube.png" width="600"></a></p>
+
+<h2>
+<a id="miscellaneous-issues" class="anchor" href="#miscellaneous-issues" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Miscellaneous issues</h2>
+
+<p>This sample application includes the insecure package.  In production settings, you will need to create Meteor methods and invoke them in the submit event handlers rather than calling the insert and update operations directly.  </p>
+
+<p>This code represents my best understanding of form processing for Meteor 1.4 and Semantic UI, but there may be better ways to do it. Please contact me (or issue a pull request) with your suggestions; they are appreciated.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/ics-software-engineering/meteor-example-form">Meteor-example-form</a> is maintained by <a href="https://github.com/ics-software-engineering">ics-software-engineering</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
