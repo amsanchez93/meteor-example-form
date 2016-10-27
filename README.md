@@ -51,7 +51,7 @@ I won't show it here, but if you violate any validation on this update page, the
 
 #### Defining form validation
 
-User input should always be validated before being further processed by the system.  The canonical approach to validation in Meteor is to create a schema using Simple Schema. In this sample application, the schema is defined as part of defining the [StudentData Collection](https://github.com/ics-software-engineering/meteor-example-form/blob/master/app/imports/api/studentdata/studentdata.js).
+User input should always be validated before being further processed by the system.  The canonical approach to validation in Meteor is to create a schema using Simple Schema. In this sample application, the schema is defined as part of defining the [StudentData Collection](https://github.com/amsanchez93/final-project-mockup/blob/master/doc/Landing%20Page.png?raw=true).
 
 #### Publications and subscriptions
 
